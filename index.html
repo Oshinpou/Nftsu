@@ -53,8 +53,8 @@
         <button type="submit">Search</button>
     </form>
 
-    <div class="result" id="searchResults"></div>
     <div class="result" id="nftResult"></div>
+    <div class="result" id="searchResults"></div>
 
     <!-- Including Axios from CDN -->
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
@@ -81,7 +81,7 @@
             ctx.fillText(text, 100, 100);
 
             // Convert canvas to Base64 image
-            const imageBase64 = canvas.toDataURL('image/png').split(',')[1];
+            const imageBase64 = canvas.toDataURL('image/png');
 
             // Generate JWT token with metadata
             const metadata = {
@@ -91,7 +91,11 @@
             };
             const token = jwt_simple.encode(metadata, 'secret');
 
-            document.getElementById('nftResult').innerText = 'NFT Token: ' + token;
+            document.getElementById('nftResult').innerHTML = `
+                <h3>Generated NFT</h3>
+                <img src="${imageBase64}" alt="Generated NFT Image" style="max-width: 100%;">
+                <p>NFT Token: ${token}</p>
+            `;
         };
 
         document.getElementById('searchForm').onsubmit = async function (event) {
