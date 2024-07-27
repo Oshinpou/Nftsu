@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Image NFT Generator</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        h1, h2 {
+            color: #333;
+        }
+        form {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 8px;
+        }
+        input[type="text"] {
+            width: 300px;
+            padding: 8px;
+            margin-bottom: 10px;
+        }
+        button {
+            padding: 10px 20px;
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        .result {
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Generate Your NFT</h1>
+    <form id="generateForm">
+        <label for="text">Enter text for your NFT:</label>
+        <input type="text" id="text" name="text" required>
+        <button type="submit">Generate</button>
+    </form>
+
+    <h2>Search</h2>
+    <form id="searchForm">
+        <label for="query">Search:</label>
+        <input type="text" id="query" name="query" required>
+        <button type="submit">Search</button>
+    </form>
+
+    <div class="result" id="searchResults"></div>
+    <div class="result" id="nftResult"></div>
+
+    <!-- Including Axios from CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <!-- Including JWT Simple from CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/jwt-simple/dist/jwt-simple.min.js"></script>
+    <script>
+        document.getElementById('generateForm').onsubmit = async function (event) {
+            event.preventDefault();
+            const text = document.getElementById('text').value;
+
+            // Create an image using Canvas
+            const canvas = document.createElement('canvas');
+            canvas.width = 800;
+            canvas.height = 600;
+            const ctx = canvas.getContext('2d');
+
+            // Create a white background
+            ctx.fillStyle = '#FFFFFF';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // Add text
+            ctx.fillStyle = '#000000';
+            ctx.font = '30px Arial';
+            ctx.fillText(text, 100, 100);
+
+            // Convert canvas to Base64 image
+            const imageBase64 = canvas.toDataURL('image/png').split(',')[1];
+
+            // Generate JWT token with metadata
+            const metadata = {
+                name: "MyNFT",
+                description: "An example NFT",
+                image: imageBase64
+            };
+            const token = jwt_simple.encode(metadata, 'secret');
+
+            document.getElementById('nftResult').innerText = 'NFT Token: ' + token;
+        };
+
+        document.getElementById('searchForm').onsubmit = async function (event) {
+            event.preventDefault();
+            const query = document.getElementById('query').value;
+
+            try {
+                const response = await axios.get(`https://api.example.com/search?q=${query}`);
+                const results = response.data;
+                let resultsHtml = '<h3>Search Results:</h3><ul>';
+                results.forEach(result => {
+                    resultsHtml += `<li>${result.name}: ${result.description}</li>`;
+                });
+                resultsHtml += '</ul>';
+                document.getElementById('searchResults').innerHTML = resultsHtml;
+            } catch (error) {
+                document.getElementById('searchResults').innerText = 'Search error';
+            }
+        };
+    </script>
+</body>
+</html>
